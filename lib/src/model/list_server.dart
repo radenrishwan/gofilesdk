@@ -1,15 +1,11 @@
 class ServerResponse {
-  final String name;
-  final String zone;
+  final String? name;
+  final String? zone;
 
-  ServerResponse({required this.name, required this.zone});
+  ServerResponse({this.name, this.zone});
 
   factory ServerResponse.fromJson(Map<String, dynamic> json) {
     return ServerResponse(name: json['name'], zone: json['zone']);
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'name': name, 'zone': zone};
   }
 
   @override
@@ -19,23 +15,21 @@ class ServerResponse {
 }
 
 class ListServerResponse {
-  final List<ServerResponse> servers;
-  final List<ServerResponse> serversAllZone;
+  final List<ServerResponse>? servers;
+  final List<ServerResponse>? serversAllZone;
 
-  ListServerResponse({required this.servers, required this.serversAllZone});
+  ListServerResponse({this.servers, this.serversAllZone});
 
   factory ListServerResponse.fromJson(Map<String, dynamic> json) {
     return ListServerResponse(
-      servers: List<ServerResponse>.from(
-        json['servers'].map(
-          (x) => ServerResponse.fromJson(x),
-        ),
-      ),
-      serversAllZone: List<ServerResponse>.from(
-        json['serversAllZone'].map(
-          (x) => ServerResponse.fromJson(x),
-        ),
-      ),
+      servers: json['servers'] != null
+          ? List<ServerResponse>.from(
+              json['servers'].map((x) => ServerResponse.fromJson(x)))
+          : null,
+      serversAllZone: json['serversAllZone'] != null
+          ? List<ServerResponse>.from(
+              json['serversAllZone'].map((x) => ServerResponse.fromJson(x)))
+          : null,
     );
   }
 

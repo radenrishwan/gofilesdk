@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:gofilesdk/src/model/create_folder.dart';
 import 'package:gofilesdk/src/model/list_server.dart';
+import 'package:gofilesdk/src/model/update_attribute.dart';
 import 'package:gofilesdk/src/model/upload_server.dart';
 import 'package:http/http.dart' as http;
 
@@ -85,7 +87,7 @@ class GofileSDK {
     final fileStream = http.ByteStream(file.openRead());
     final fileLength = file.lengthSync();
 
-    if (fileName.isNotEmpty) {
+    if (fileName.isEmpty) {
       fileName = DateTime.now().millisecondsSinceEpoch.toString();
     }
 
@@ -104,6 +106,136 @@ class GofileSDK {
         return BaseResponse.fromJson(
           json.decode(responseString),
           (data) => UploadFileResponse.fromJson(data),
+        );
+      } else {
+        throw Exception(
+            'Failed to load data, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load data, error: $e');
+    }
+  }
+
+  /// Create a new folder. It will throw an exception if the token is not set.
+  ///
+  /// Parameters:
+  /// - [parentFolderId] : The parent folder id.
+  /// - [folderName] : The folder name. If not provided, the system will generate a unique folder name automatically.
+  Future<BaseResponse<CreateFolderResponse>> createFolder({
+    required String parentFolderId,
+    String folderName = '',
+  }) async {
+    if (token.isEmpty) {
+      throw Exception('Token is required to create a folder');
+    }
+
+    final url = Uri.parse('$BASE_URL/contents/createFolder');
+
+    try {
+      final request = await http.post(url, headers: {
+        "Authorization": "Bearer $token",
+      }, body: {
+        "parentFolderId": parentFolderId,
+        "folderName": folderName,
+      });
+
+      if (request.statusCode == 200) {
+        return BaseResponse.fromJson(
+          json.decode(request.body),
+          (data) => CreateFolderResponse.fromJson(data),
+        );
+      } else {
+        throw Exception(
+            'Failed to load data, status code: ${request.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load data, error: $e');
+    }
+  }
+
+  /// Update attribute of a file or folder. It will throw an exception if the token is not set.
+  /// You can only change name attribute for a files. If you try to change another attribute, it will throw an error from server.
+  /// Refer to https://gofile.io/api
+  Future<BaseResponse<UpdateAttributeResponse>> updateAttribute<T>({
+    required UpdateAttributeField attribute,
+    required String attributeId,
+    required T value,
+  }) async {
+    if (token.isEmpty) {
+      throw Exception('Token is required to update attribute');
+    }
+
+    switch (attribute) {
+      case UpdateAttributeField.name:
+      case UpdateAttributeField.description:
+      case UpdateAttributeField.tags:
+      case UpdateAttributeField.password:
+        if (value is! String) {
+          throw ArgumentError('Value must be a String for ${attribute.name}');
+        }
+
+        break;
+      case UpdateAttributeField.public:
+        if (value is! bool) {
+          throw ArgumentError('Value must be a bool for ${attribute.name}');
+        }
+
+        break;
+      case UpdateAttributeField.expiry:
+        if (value is! int) {
+          throw ArgumentError('Value must be an int for ${attribute.name}');
+        }
+
+        break;
+    }
+
+    final url = Uri.parse('$BASE_URL/contents/$attributeId/update');
+
+    try {
+      final request = await http.put(url, headers: {
+        "Authorization": "Bearer $token",
+      }, body: {
+        "attribute": attribute.name,
+        "attributeValue": value.toString(),
+      });
+
+      if (request.statusCode == 200) {
+        return BaseResponse.fromJson(
+          json.decode(request.body),
+          (data) => UpdateAttributeResponse(),
+        );
+      } else {
+        throw Exception(
+            'Failed to load data, status code: ${request.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load data, error: $e');
+    }
+  }
+
+  /// Delete a file or folder. It will throw an exception if the token is not set.
+  /// For a multiple delete, you can seperate by using ","
+  ///
+  /// Warning: Deleting a folder will also remove all its contents, including subfolders and files.
+  Future<BaseResponse<ListServerResponse>> delete(
+      {required List<String> contentsId}) async {
+    if (token.isEmpty) {
+      throw Exception('Token is required to delete a file or folder');
+    }
+
+    final ids = contentsId.join(',');
+
+    try {
+      final response =
+          await http.delete(Uri.parse('$BASE_URL/contents'), headers: {
+        "Authorization": "Bearer $token",
+      }, body: {
+        "contentsId": ids,
+      });
+      if (response.statusCode == 200) {
+        return BaseResponse.fromJson(
+          json.decode(response.body),
+          (data) => ListServerResponse.fromJson(data),
         );
       } else {
         throw Exception(
