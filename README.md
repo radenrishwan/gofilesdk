@@ -17,24 +17,43 @@ Unofficial Gofile SDK for Dart and Flutter. still not finish yet because the som
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+all features from Gofile API
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+didn't need any configuration, just install the package and use it.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+you can use this package by creating a `GofilSDK` class.
 
 ```dart
-const like = 'sample';
+import 'dart:io';
+
+import 'package:gofilesdk/gofilesdk.dart';
+
+void main() async {
+  final sdk = GofileSDK();
+
+  // you can simply call the function like this
+  var listServer = await sdk.getListServer();
+  print('Server available: $listServer');
+
+  // upload file
+  final file = File('foo.txt');
+
+  var upload = await sdk.uploadFile(
+    file: file,
+    server: 'store3',
+    fileName: 'foo.txt',
+  );
+
+  print('Upload result: $upload');
+
+  // for more information, you can see the example folder
+}
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+all information about the Gofile API can be found [here](https://gofile.io/api)
