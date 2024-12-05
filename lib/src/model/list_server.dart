@@ -1,3 +1,4 @@
+/// [ServerResponse] used to parse the respnse from get server API.
 class ServerResponse {
   final String? name;
   final String? zone;
@@ -14,6 +15,7 @@ class ServerResponse {
   }
 }
 
+/// [ListServerResponse] used to parse the response from the list server API.
 class ListServerResponse {
   final List<ServerResponse>? servers;
   final List<ServerResponse>? serversAllZone;

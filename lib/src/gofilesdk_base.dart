@@ -12,6 +12,27 @@ import 'package:http/http.dart' as http;
 
 const BASE_URL = "https://api.gofile.io";
 
+/// [GofileSDK] is a class to interact with Gofile API. you can take a look at `test/` folder to see how to use it.
+/// How to use:
+///
+/// ```dart
+/// final sdk = GofileSDK();
+///
+/// // you can simply call the function like this
+/// var listServer = await sdk.getListServer();
+/// print('Server available: $listServer');
+///
+/// // upload file
+/// final file = File('foo.txt');
+///
+/// var upload = await sdk.uploadFile(
+///   file: file,
+///   server: 'store3',
+///   fileName: 'foo.txt',
+/// );
+///
+/// print('Upload result: $upload');
+/// ```
 class GofileSDK {
   final String token;
 

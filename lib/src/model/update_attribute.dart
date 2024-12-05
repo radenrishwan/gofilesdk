@@ -1,3 +1,4 @@
+/// [UpdateAttributeRequest] used to update the attribute of the file or folder.
 enum UpdateAttributeField {
   name,
   description,
@@ -14,6 +15,7 @@ class UpdateAttributeValue<T> {
   UpdateAttributeValue(this.field, this.value);
 }
 
+/// [UpdateAttributeResponse] used to parse the response from the update attribute API.
 class UpdateAttributeResponse {
   final String? id;
   final String? type;

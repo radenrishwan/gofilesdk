@@ -1,3 +1,4 @@
+/// Base response class, used to wrap the response from the server.
 class BaseResponse<T> {
   final String status;
   final T data;

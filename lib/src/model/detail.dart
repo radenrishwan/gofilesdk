@@ -1,3 +1,4 @@
+/// [DetailResponse] used to parse the response from the detail API.
 class DetailResponse {
   final String? id;
   final String? type;
@@ -62,6 +63,7 @@ class DetailResponse {
   }
 }
 
+/// [ChildItem] used to parse the child item from the detail API.
 class ChildItem {
   final String? id;
   final String? type;

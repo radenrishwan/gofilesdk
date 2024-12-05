@@ -1,3 +1,4 @@
+/// [UploadFileResponse] used to parse the response from the upload file API.
 class UploadFileResponse {
   final int? createTime;
   final String? downloadPage;

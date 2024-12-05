@@ -1,3 +1,4 @@
+/// [CreateFolderResponse] used to parse the response from the create folder API.
 class CreateFolderResponse {
   final String? id;
   final String? owner;

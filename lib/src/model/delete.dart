@@ -1,5 +1,6 @@
 import 'package:gofilesdk/src/model/base.dart';
 
+/// [DeleteResponse] used to parse the response from the delete API.
 class DeleteResponse {
   final Map<String, BaseResponse<Map<String, dynamic>>> data;
   final String status;
