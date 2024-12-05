@@ -1,37 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:gofilesdk/src/model/base.dart';
 import 'package:gofilesdk/src/model/create_folder.dart';
+import 'package:gofilesdk/src/model/delete.dart';
+import 'package:gofilesdk/src/model/detail.dart';
 import 'package:gofilesdk/src/model/list_server.dart';
 import 'package:gofilesdk/src/model/update_attribute.dart';
 import 'package:gofilesdk/src/model/upload_server.dart';
 import 'package:http/http.dart' as http;
 
 const BASE_URL = "https://api.gofile.io";
-
-class BaseResponse<T> {
-  final String status;
-  final T data;
-
-  BaseResponse({required this.status, required this.data});
-
-  factory BaseResponse.fromJson(
-      Map<String, dynamic> json, T Function(Map<String, dynamic>) fromJsonT) {
-    return BaseResponse(
-      status: json['status'],
-      data: fromJsonT(json['data']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'status': status, 'data': data};
-  }
-
-  @override
-  String toString() {
-    return 'BaseResponse{status: $status, data: $data}';
-  }
-}
 
 class GofileSDK {
   final String token;
@@ -214,11 +193,9 @@ class GofileSDK {
   }
 
   /// Delete a file or folder. It will throw an exception if the token is not set.
-  /// For a multiple delete, you can seperate by using ","
   ///
   /// Warning: Deleting a folder will also remove all its contents, including subfolders and files.
-  Future<BaseResponse<ListServerResponse>> delete(
-      {required List<String> contentsId}) async {
+  Future<DeleteResponse> delete({required List<String> contentsId}) async {
     if (token.isEmpty) {
       throw Exception('Token is required to delete a file or folder');
     }
@@ -233,9 +210,41 @@ class GofileSDK {
         "contentsId": ids,
       });
       if (response.statusCode == 200) {
+        return DeleteResponse.fromJson(json.decode(response.body));
+      } else {
+        throw Exception(
+            'Failed to load data, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load data, error: $e');
+    }
+  }
+
+  /// Get detail of a file or folder. It will throw an exception if the token is not set.
+  /// You need to be a premium user to get the detail of a file or folder.
+  Future<BaseResponse<DetailResponse>> detail({
+    required String contentId,
+    String password = '',
+  }) async {
+    if (token.isEmpty) {
+      throw Exception(
+          'Token is required to get detail, also you need to be premium user');
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '$BASE_URL/contents/$contentId${password.isNotEmpty ? "?password=$password" : ""}',
+        ),
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
         return BaseResponse.fromJson(
           json.decode(response.body),
-          (data) => ListServerResponse.fromJson(data),
+          (data) => DetailResponse.fromJson(data),
         );
       } else {
         throw Exception(
